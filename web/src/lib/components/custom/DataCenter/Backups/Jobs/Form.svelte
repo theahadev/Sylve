@@ -21,6 +21,7 @@
 	import type { VM } from '$lib/types/vm/vm';
 	import { handleAPIError, updateCache } from '$lib/utils/http';
 	import { cronToHuman } from '$lib/utils/time';
+	import { jailBaseDataset } from '$lib/utils/jail/jail';
 	import { vmBaseDataset, vmStoragePools } from '$lib/utils/vm/vm';
 	import { watch } from 'runed';
 	import { toast } from 'svelte-sonner';
@@ -284,11 +285,7 @@
 				const matchingJail = jails.find((jail) => jail.ctId === parsedGuest.id);
 				form.selectedJailId = matchingJail ? String(matchingJail.id) : '';
 			} else {
-				const matchingJail = jails.find((jail) => {
-					const baseStorage = jail.storages?.find((storage) => storage.isBase);
-					if (!baseStorage) return false;
-					return `${baseStorage.pool}/sylve/jails/${jail.ctId}` === rootDataset;
-				});
+				const matchingJail = jails.find((jail) => jailBaseDataset(jail) === rootDataset);
 				form.selectedJailId = matchingJail ? String(matchingJail.id) : '';
 			}
 		}
@@ -376,7 +373,7 @@
 				return;
 			}
 
-			jailDataset = `${baseStorage.pool}/sylve/jails/${selectedJail.ctId}`;
+			jailDataset = jailBaseDataset(selectedJail);
 		}
 
 		let vmDataset = '';
@@ -487,8 +484,7 @@
 			if (form.mode === 'dataset') {
 				dataset = form.sourceDataset;
 			} else if (form.mode === 'jail' && selectedJail) {
-				const base = selectedJail.storages?.find((s) => s.isBase);
-				if (base) dataset = `${base.pool}/sylve/jails/${selectedJail.ctId}`;
+				dataset = jailBaseDataset(selectedJail) || '';
 			} else if (form.mode === 'vm' && selectedVM) {
 				dataset = vmBaseDataset(selectedVM) || '';
 			}

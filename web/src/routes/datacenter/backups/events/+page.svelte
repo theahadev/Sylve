@@ -21,6 +21,7 @@
 	import type { CellComponent } from 'tabulator-tables';
 	import { renderWithIcon } from '$lib/utils/table';
 	import { getJails } from '$lib/api/jail/jail';
+	import { jailBaseDataset } from '$lib/utils/jail/jail';
 	import type { Jail, JailStorage } from '$lib/types/jail/jail';
 
 	let filterJobId = $state('');
@@ -219,7 +220,7 @@
 			const baseStorage = jail.storages?.find((storage: JailStorage) => storage.isBase);
 			if (!baseStorage) continue;
 
-			const jailDataset = `${baseStorage.pool}/sylve/jails/${jail.ctId}`;
+			const jailDataset = jailBaseDataset(jail);
 			if (jailDataset === dataset) {
 				return jail.name || '';
 			}

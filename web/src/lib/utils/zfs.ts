@@ -106,7 +106,8 @@ export function formatRestoreSnapshotDate(snapshot: SnapshotInfo): string {
 
 export function inferJailDestinationDataset(
     target: BackupTarget | undefined,
-    dataset: string
+    dataset: string,
+    datasetPath: string = 'sylve'
 ): string {
     if (!target) return '';
     const jailMatch = dataset.match(/(?:^|\/)jails\/(\d+)(?:$|\/)/);
@@ -114,12 +115,13 @@ export function inferJailDestinationDataset(
     const ctid = jailMatch[1];
     const pool = target.backupRoot.split('/')[0] || '';
     if (!pool) return '';
-    return `${pool}/sylve/jails/${ctid}`;
+    return `${pool}/${datasetPath}/jails/${ctid}`;
 }
 
 export function inferVMDestinationDataset(
     target: BackupTarget | undefined,
-    dataset: string
+    dataset: string,
+    datasetPath: string = 'sylve'
 ): string {
     if (!target) return '';
     const vmMatch = dataset.match(/(?:^|\/)virtual-machines\/(\d+)(?:$|\/)/);
@@ -136,7 +138,7 @@ export function inferVMDestinationDataset(
     }
     if (!pool) return '';
 
-    return `${pool}/sylve/virtual-machines/${rid}`;
+    return `${pool}/${datasetPath}/virtual-machines/${rid}`;
 }
 
 // ---------------------------------------------------------------------------

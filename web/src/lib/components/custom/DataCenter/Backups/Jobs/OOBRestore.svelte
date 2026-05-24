@@ -683,9 +683,9 @@
 			<CustomValueInput
 				label="Destination Dataset"
 				placeholder={selectedRestoreTargetDatasetKind === 'vm'
-					? 'zroot/sylve/virtual-machines/104'
+					? '<pool>/<dataset-path>/virtual-machines/<vm-id>'
 					: selectedRestoreTargetDatasetKind === 'jail'
-						? 'zroot/sylve/jails/105'
+						? '<pool>/<dataset-path>/jails/<jail-id>'
 						: 'pool/path'}
 				bind:value={destinationDataset}
 				classes="space-y-1"

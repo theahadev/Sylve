@@ -323,10 +323,10 @@ export function vmStoragePools(vm: VM): string[] {
     return [...pools];
 }
 
-export function vmBaseDataset(vm: VM): string {
+export function vmBaseDataset(vm: VM, datasetPath: string = 'sylve'): string {
     const pools = vmStoragePools(vm);
     if (pools.length > 0) {
-        return `${pools[0]}/sylve/virtual-machines/${vm.rid}`;
+        return `${pools[0]}/${datasetPath}/virtual-machines/${vm.rid}`;
     }
 
     for (const storage of vm.storages || []) {

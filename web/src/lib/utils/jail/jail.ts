@@ -196,8 +196,12 @@ export function getJailCreateErrorMessage(response: Pick<APIResponse, 'message' 
     );
 }
 
-export function generateSimpleLinuxFSTab(ctId: number, pool: string): string {
-    const base = `/${pool}/sylve/jails/${ctId}`;
+export function generateSimpleLinuxFSTab(
+	ctId: number,
+	pool: string,
+	datasetPath: string = 'sylve'
+): string {
+	const base = `/${pool}/${datasetPath}/jails/${ctId}`;
 
     const entries = [
         { fs: 'devfs', mp: `${base}/dev`, type: 'devfs', opts: 'rw' },
@@ -214,6 +218,12 @@ export function dnsConfigPresets(
     resolver: keyof typeof DNS_PRESETS
 ): string {
     return DNS_PRESETS[resolver];
+}
+
+export function jailBaseDataset(jail: Jail, datasetPath: string = 'sylve'): string {
+	const base = jail.storages?.find((s: { isBase: boolean; pool: string }) => s.isBase);
+	if (!base) return '';
+	return `${base.pool}/${datasetPath}/jails/${jail.ctId}`;
 }
 
 const jailLifecycleBadgeStyles: Record<JailLifecycleAction, JailLifecycleBadgeStyle> = {
