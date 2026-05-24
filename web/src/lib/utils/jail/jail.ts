@@ -1,5 +1,6 @@
 import type {
     CreateData,
+    Jail,
     JailLifecycleAction,
     JailLifecycleBadgeStyle
 } from '$lib/types/jail/jail';
