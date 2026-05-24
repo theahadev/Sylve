@@ -45,6 +45,11 @@ func ParseConfig(path string) *internal.SylveConfig {
 		Auth: internal.AuthConfig{
 			EnablePAM: true,
 		},
+		Jails: internal.JailsConfig{
+			Storage: internal.StorageConfig{
+				DatasetPath: "sylve",
+			},
+		},
 	}
 	err = decoder.Decode(ParsedConfig)
 
@@ -92,6 +97,14 @@ func IsDevFSDisabled() bool {
 	}
 
 	return false
+}
+
+func GetJailDatasetPath() string {
+	if ParsedConfig != nil && ParsedConfig.Jails.Storage.DatasetPath != "" {
+		return ParsedConfig.Jails.Storage.DatasetPath
+	}
+
+	return "sylve"
 }
 
 func GetDataPath() (string, error) {

@@ -26,7 +26,10 @@
         }
     },
     "jails": {
-        "disableDevFS": false
+        "disableDevFS": false,
+        "storage": {
+            "datasetPath": "sylve"
+        }
     },
     "trustedProxies": []
 }
