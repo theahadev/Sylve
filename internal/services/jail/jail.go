@@ -382,8 +382,8 @@ func (s *Service) ValidateCreate(ctx context.Context, data jailServiceInterfaces
 			return fmt.Errorf("base_is_not_a_directory")
 		}
 	} else if data.BootstrapName != "" {
-		bootstrapDataset := fmt.Sprintf("%s/sylve/bootstraps/%s", data.Pool, data.BootstrapName)
-		bootstrapMount := fmt.Sprintf("/%s/sylve/bootstraps/%s", data.Pool, data.BootstrapName)
+		bootstrapDataset := fmt.Sprintf("%s/%s/bootstraps/%s", data.Pool, config.GetJailDatasetPath(), data.BootstrapName)
+		bootstrapMount := fmt.Sprintf("/%s/%s/bootstraps/%s", data.Pool, config.GetJailDatasetPath(), data.BootstrapName)
 
 		var bRecord jailModels.JailBootstrap
 		if err := s.DB.Where("pool = ? AND name = ?", data.Pool, data.BootstrapName).First(&bRecord).Error; err != nil {
@@ -405,7 +405,7 @@ func (s *Service) ValidateCreate(ctx context.Context, data jailServiceInterfaces
 		return fmt.Errorf("download_uuid_or_bootstrap_name_required")
 	}
 
-	existingDataset, err := s.GZFS.ZFS.Get(ctx, fmt.Sprintf("%s/sylve/jails/%d", foundPool, *data.CTID), false)
+	existingDataset, err := s.GZFS.ZFS.Get(ctx, fmt.Sprintf("%s/%s/jails/%d", foundPool, config.GetJailDatasetPath(), *data.CTID), false)
 	if err != nil {
 		if !strings.Contains(err.Error(), "dataset does not exist") {
 			return fmt.Errorf("failed_to_get_existing_datasets: %w", err)
@@ -727,7 +727,7 @@ func (s *Service) hasStaleJailRootDatasetForCreate(ctx context.Context, ctid uin
 			continue
 		}
 
-		datasetName := fmt.Sprintf("%s/sylve/jails/%d", poolName, ctid)
+		datasetName := fmt.Sprintf("%s/%s/jails/%d", poolName, config.GetJailDatasetPath(), ctid)
 		ds, getErr := s.GZFS.ZFS.Get(ctx, datasetName, false)
 		if getErr != nil {
 			if isZFSDatasetMissingError(getErr) {
@@ -835,7 +835,7 @@ func (s *Service) forceRemoveJailZFSDatasets(ctx context.Context, ctid uint, fal
 	}
 
 	for poolName := range poolNames {
-		datasetName := fmt.Sprintf("%s/sylve/jails/%d", poolName, ctid)
+		datasetName := fmt.Sprintf("%s/%s/jails/%d", poolName, config.GetJailDatasetPath(), ctid)
 
 		ds, getErr := s.GZFS.ZFS.Get(ctx, datasetName, false)
 		if getErr != nil {
@@ -1555,8 +1555,8 @@ func (s *Service) CreateJail(ctx context.Context, data jailServiceInterfaces.Cre
 		s.cleanupFailedJailCreate(ctid, data.Pool, autoCreatedMACIDs)
 	}()
 
-	datasetName := fmt.Sprintf("%s/sylve/jails/%d", data.Pool, ctid)
-	mountPoint := fmt.Sprintf("/%s/sylve/jails/%d", data.Pool, ctid)
+	datasetName := fmt.Sprintf("%s/%s/jails/%d", data.Pool, config.GetJailDatasetPath(), ctid)
+	mountPoint := fmt.Sprintf("/%s/%s/jails/%d", data.Pool, config.GetJailDatasetPath(), ctid)
 
 	var dataset *gzfs.Dataset
 	dataset, err = s.GZFS.ZFS.CreateFilesystem(ctx, datasetName, map[string]string{})
@@ -1862,7 +1862,7 @@ func (s *Service) CreateJail(ctx context.Context, data jailServiceInterfaces.Cre
 	txCommitted = true
 
 	if data.BootstrapName != "" {
-		bootstrapMount := fmt.Sprintf("/%s/sylve/bootstraps/%s", data.Pool, data.BootstrapName)
+		bootstrapMount := fmt.Sprintf("/%s/%s/bootstraps/%s", data.Pool, config.GetJailDatasetPath(), data.BootstrapName)
 		if err = utils.CopyDirContents(bootstrapMount, mountPoint); err != nil {
 			err = fmt.Errorf("failed_to_copy_bootstrap: %w", err)
 			return
@@ -1977,7 +1977,7 @@ func (s *Service) DeleteJail(ctx context.Context, ctId uint, deleteMacs bool, de
 					continue
 				}
 
-				datasetName := fmt.Sprintf("%s/sylve/jails/%d", storage.Pool, ctId)
+				datasetName := fmt.Sprintf("%s/%s/jails/%d", storage.Pool, config.GetJailDatasetPath(), ctId)
 				if err := s.destroyStorageDatasetForDelete(ctx, datasetName); err != nil {
 					return err
 				}
@@ -2176,7 +2176,7 @@ func (s *Service) WriteJailJSON(ctId uint) error {
 	var mountPoints []string
 	for _, storage := range jail.Storages {
 		if storage.IsBase {
-			mountPoints = append(mountPoints, fmt.Sprintf("/%s/sylve/jails/%d", storage.Pool, ctId))
+			mountPoints = append(mountPoints, fmt.Sprintf("/%s/%s/jails/%d", storage.Pool, config.GetJailDatasetPath(), ctId))
 		}
 	}
 

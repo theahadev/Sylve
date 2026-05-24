@@ -17,6 +17,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alchemillahq/sylve/internal/config"
 	jailModels "github.com/alchemillahq/sylve/internal/db/models/jail"
 	jailServiceInterfaces "github.com/alchemillahq/sylve/internal/interfaces/services/jail"
 	"github.com/alchemillahq/sylve/internal/logger"
@@ -38,8 +39,8 @@ func (s *Service) ListBootstraps(ctx context.Context, pool string) ([]jailServic
 	for _, ver := range jailServiceInterfaces.SupportedVersions {
 		for _, bt := range jailServiceInterfaces.BootstrapTypes {
 			name := bootstrapName(bt, ver.Major, ver.Minor)
-			dataset := fmt.Sprintf("%s/sylve/bootstraps/%s", pool, name)
-			mountPoint := fmt.Sprintf("/%s/sylve/bootstraps/%s", pool, name)
+			dataset := fmt.Sprintf("%s/%s/bootstraps/%s", pool, config.GetJailDatasetPath(), name)
+			mountPoint := fmt.Sprintf("/%s/%s/bootstraps/%s", pool, config.GetJailDatasetPath(), name)
 
 			entry := jailServiceInterfaces.BootstrapEntry{
 				Pool:       pool,
@@ -116,8 +117,8 @@ func (s *Service) CreateBootstrap(ctx context.Context, req jailServiceInterfaces
 	}
 
 	name := bootstrapName(*typeSpec, req.Major, req.Minor)
-	dataset := fmt.Sprintf("%s/sylve/bootstraps/%s", req.Pool, name)
-	mountPoint := fmt.Sprintf("/%s/sylve/bootstraps/%s", req.Pool, name)
+	dataset := fmt.Sprintf("%s/%s/bootstraps/%s", req.Pool, config.GetJailDatasetPath(), name)
+	mountPoint := fmt.Sprintf("/%s/%s/bootstraps/%s", req.Pool, config.GetJailDatasetPath(), name)
 	lockKey := fmt.Sprintf("%s:%s", req.Pool, name)
 
 	if _, loaded := s.bootstrapActiveMu.LoadOrStore(lockKey, true); loaded {
@@ -235,7 +236,7 @@ func (s *Service) runBootstrap(
 	fingerprintsRelPath := fmt.Sprintf("/usr/share/keys/pkgbase-%d", req.Major)
 
 	s.updateBootstrapRecord(recordID, "running", "creating_dataset", "")
-	parentDataset := fmt.Sprintf("%s/sylve/bootstraps", req.Pool)
+	parentDataset := fmt.Sprintf("%s/%s/bootstraps", req.Pool, config.GetJailDatasetPath())
 	if pds, _ := s.GZFS.ZFS.Get(bCtx, parentDataset, false); pds == nil {
 		if _, err = s.GZFS.ZFS.CreateFilesystem(bCtx, parentDataset, nil); err != nil {
 			failStep("creating_dataset", fmt.Errorf("failed_to_create_parent_dataset: %w", err))
@@ -370,7 +371,7 @@ func (s *Service) DeleteBootstrap(ctx context.Context, pool, name string) error 
 		}
 	}
 
-	dataset := fmt.Sprintf("%s/sylve/bootstraps/%s", pool, name)
+	dataset := fmt.Sprintf("%s/%s/bootstraps/%s", pool, config.GetJailDatasetPath(), name)
 	ds, _ := s.GZFS.ZFS.Get(ctx, dataset, false)
 	if ds != nil {
 		if err := ds.Destroy(ctx, true, false); err != nil {

@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/alchemillahq/gzfs"
+	"github.com/alchemillahq/sylve/internal/config"
 	"github.com/alchemillahq/sylve/internal/db"
 	vmModels "github.com/alchemillahq/sylve/internal/db/models/vm"
 	zfsServiceInterfaces "github.com/alchemillahq/sylve/internal/interfaces/services/zfs"
@@ -157,7 +158,11 @@ func (s *Service) BulkDeleteDataset(ctx context.Context, guids []string) error {
 		available[ds.GUID] = ds
 	}
 
-	cantDelete := []string{"sylve", "sylve/virtual-machines", "sylve/jails"}
+	cantDelete := []string{
+		config.GetJailDatasetPath(),
+		fmt.Sprintf("%s/virtual-machines", config.GetJailDatasetPath()),
+		fmt.Sprintf("%s/jails", config.GetJailDatasetPath()),
+	}
 
 	for _, guid := range guids {
 		if _, ok := available[guid]; !ok {

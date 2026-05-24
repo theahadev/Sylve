@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/alchemillahq/sylve/internal/config"
 	vmModels "github.com/alchemillahq/sylve/internal/db/models/vm"
 	"github.com/alchemillahq/sylve/internal/logger"
 )
@@ -101,7 +102,11 @@ func (s *Service) DeleteFilesystem(ctx context.Context, guid string) error {
 		return fmt.Errorf("filesystem with guid %s not found", guid)
 	}
 
-	noDelete := []string{"sylve", "sylve/virtual-machines", "sylve/jails"}
+	noDelete := []string{
+		config.GetJailDatasetPath(),
+		fmt.Sprintf("%s/virtual-machines", config.GetJailDatasetPath()),
+		fmt.Sprintf("%s/jails", config.GetJailDatasetPath()),
+	}
 	for _, name := range noDelete {
 		if strings.HasSuffix(foundFS.Name, name) {
 			return fmt.Errorf("cannot_delete_critical_filesystem")

@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/alchemillahq/gzfs"
+	"github.com/alchemillahq/sylve/internal/config"
 	"github.com/alchemillahq/sylve/internal/db/models"
 	infoModels "github.com/alchemillahq/sylve/internal/db/models/info"
 	zfsServiceInterfaces "github.com/alchemillahq/sylve/internal/interfaces/services/zfs"
@@ -153,9 +154,9 @@ func (s *Service) CreatePool(ctx context.Context, req zfsServiceInterfaces.Creat
 
 func (s *Service) ensureSylveDatasetsOnPool(ctx context.Context, poolName string) error {
 	requiredDatasets := []string{
-		"sylve",
-		"sylve/virtual-machines",
-		"sylve/jails",
+		config.GetJailDatasetPath(),
+		fmt.Sprintf("%s/virtual-machines", config.GetJailDatasetPath()),
+		fmt.Sprintf("%s/jails", config.GetJailDatasetPath()),
 	}
 
 	for _, dataset := range requiredDatasets {

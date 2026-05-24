@@ -285,7 +285,7 @@ func (s *Service) PreflightConvertJailToTemplate(ctx context.Context, ctID uint,
 		return fmt.Errorf("jail_base_pool_not_found")
 	}
 
-	sourceDataset := fmt.Sprintf("%s/sylve/jails/%d", pool, ctID)
+	sourceDataset := fmt.Sprintf("%s/%s/jails/%d", pool, config.GetJailDatasetPath(), ctID)
 	srcDS, err := s.GZFS.ZFS.Get(ctx, sourceDataset, false)
 	if err != nil {
 		return fmt.Errorf("failed_to_get_source_jail_dataset: %w", err)
@@ -344,8 +344,8 @@ func (s *Service) ConvertJailToTemplate(ctx context.Context, ctID uint, req Conv
 		return fmt.Errorf("jail_base_pool_not_found")
 	}
 
-	sourceDataset := fmt.Sprintf("%s/sylve/jails/%d", pool, ctID)
-	templateParentDataset := fmt.Sprintf("%s/sylve/jails/templates", pool)
+	sourceDataset := fmt.Sprintf("%s/%s/jails/%d", pool, config.GetJailDatasetPath(), ctID)
+	templateParentDataset := fmt.Sprintf("%s/%s/jails/templates", pool, config.GetJailDatasetPath())
 	templateToken := sanitizeTemplateDatasetToken(req.Name)
 	templateDataset := fmt.Sprintf(
 		"%s/%s-%d",
@@ -601,7 +601,7 @@ func (s *Service) preflightTemplateTargets(ctx context.Context, template jailMod
 	requiredByPool := make(map[string]uint64)
 
 	for _, target := range targets {
-		datasetName := fmt.Sprintf("%s/sylve/jails/%d", target.Pool, target.CTID)
+		datasetName := fmt.Sprintf("%s/%s/jails/%d", target.Pool, config.GetJailDatasetPath(), target.CTID)
 		if existing, getErr := s.GZFS.ZFS.Get(ctx, datasetName, false); getErr != nil {
 			if !strings.Contains(strings.ToLower(getErr.Error()), "does not exist") {
 				return fmt.Errorf("failed_to_check_target_dataset: %w", getErr)
@@ -669,8 +669,8 @@ func (s *Service) createJailFromTemplateTarget(
 		return fmt.Errorf("template_dataset_not_found")
 	}
 
-	datasetName := fmt.Sprintf("%s/sylve/jails/%d", target.Pool, target.CTID)
-	mountPoint := fmt.Sprintf("/%s/sylve/jails/%d", target.Pool, target.CTID)
+	datasetName := fmt.Sprintf("%s/%s/jails/%d", target.Pool, config.GetJailDatasetPath(), target.CTID)
+	mountPoint := fmt.Sprintf("/%s/%s/jails/%d", target.Pool, config.GetJailDatasetPath(), target.CTID)
 
 	if existing, getErr := s.GZFS.ZFS.Get(ctx, datasetName, false); getErr != nil {
 		if !strings.Contains(strings.ToLower(getErr.Error()), "does not exist") {

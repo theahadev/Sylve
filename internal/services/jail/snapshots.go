@@ -549,8 +549,8 @@ func resolveJailRootDataset(jail *jailModels.Jail) (string, string, error) {
 		return "", "", fmt.Errorf("jail_base_pool_not_found")
 	}
 
-	rootDataset := fmt.Sprintf("%s/sylve/jails/%d", basePool, jail.CTID)
-	mountPoint := fmt.Sprintf("/%s/sylve/jails/%d", basePool, jail.CTID)
+	rootDataset := fmt.Sprintf("%s/%s/jails/%d", basePool, config.GetJailDatasetPath(), jail.CTID)
+	mountPoint := fmt.Sprintf("/%s/%s/jails/%d", basePool, config.GetJailDatasetPath(), jail.CTID)
 	return rootDataset, mountPoint, nil
 }
 

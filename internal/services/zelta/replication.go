@@ -20,6 +20,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alchemillahq/sylve/internal/config"
 	"github.com/alchemillahq/sylve/internal/db"
 	clusterModels "github.com/alchemillahq/sylve/internal/db/models/cluster"
 	jailModels "github.com/alchemillahq/sylve/internal/db/models/jail"
@@ -1609,7 +1610,7 @@ func (s *Service) resolveJailReplicationSourceDataset(ctID uint) (string, error)
 		return "", fmt.Errorf("jail_pool_not_found")
 	}
 
-	return fmt.Sprintf("%s/sylve/jails/%d", pool, ctID), nil
+	return fmt.Sprintf("%s/%s/jails/%d", pool, config.GetJailDatasetPath(), ctID), nil
 }
 
 func (s *Service) updateReplicationPolicyResult(policy *clusterModels.ReplicationPolicy, runErr error) {

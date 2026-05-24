@@ -50,8 +50,13 @@ const (
 	Debug       Environment = "debug"
 )
 
+type StorageConfig struct {
+	DatasetPath string `json:"datasetPath"`
+}
+
 type JailsConfig struct {
-	DisableDevFS bool `json:"disableDevFS"`
+	DisableDevFS bool          `json:"disableDevFS"`
+	Storage      StorageConfig `json:"storage"`
 }
 
 type SylveConfig struct {

@@ -15,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/alchemillahq/sylve/internal/config"
 	jailModels "github.com/alchemillahq/sylve/internal/db/models/jail"
 	"github.com/alchemillahq/sylve/internal/logger"
 	utils "github.com/alchemillahq/sylve/pkg/utils"
@@ -98,7 +99,8 @@ func (s *Service) SyncEpairs(_ bool) error {
 		lines := strings.Split(strings.TrimSpace(jls), "\n")
 		for _, line := range lines {
 			path := strings.TrimSpace(line)
-			if strings.Contains(path, "/sylve/jails/") {
+			jailPathPrefix := fmt.Sprintf("/%s/jails/", config.GetJailDatasetPath())
+			if strings.Contains(path, jailPathPrefix) {
 				activePaths = append(activePaths, path)
 			}
 		}
@@ -117,7 +119,7 @@ func (s *Service) SyncEpairs(_ bool) error {
 
 	for _, j := range jails {
 		hash := utils.HashIntToNLetters(int(j.CTID), 5)
-		jailSuffix := fmt.Sprintf("/sylve/jails/%d", j.CTID)
+		jailSuffix := fmt.Sprintf("/%s/jails/%d", config.GetJailDatasetPath(), j.CTID)
 		isActive := false
 
 		for _, p := range activePaths {

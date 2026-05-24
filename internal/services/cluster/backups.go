@@ -19,6 +19,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/alchemillahq/sylve/internal/config"
 	clusterModels "github.com/alchemillahq/sylve/internal/db/models/cluster"
 	jailModels "github.com/alchemillahq/sylve/internal/db/models/jail"
 	vmModels "github.com/alchemillahq/sylve/internal/db/models/vm"
@@ -780,7 +781,7 @@ func (s *Service) buildBackupJob(id uint, input clusterServiceInterfaces.BackupJ
 
 	if mode == clusterModels.BackupJobModeJail {
 		if job.JailRootDataset == "" {
-			job.JailRootDataset = "zroot/sylve/jails"
+			job.JailRootDataset = fmt.Sprintf("zroot/%s/jails", config.GetJailDatasetPath())
 		}
 		job.SourceDataset = ""
 	}
